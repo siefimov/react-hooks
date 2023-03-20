@@ -9,36 +9,44 @@ import { articles } from "../constants/mockNews";
 
 const OneSourceNews = () => {
   const { sources } = useParams();
-  const [news, setNews] = useState(articles);
-  const [isLoading, setIsLoading] = useState(false);
+  const [news, setNews] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
 
-  // const getNews = async () => {
-  //   const response = await fetch(
-  //     `https://newsapi.org/v2/top-headlines?sources=${sources}&apiKey=${API_KEY}`
-  //   );
-  //   const data = await response.json();
-  //   const articles = data.articles;
-  //   setNews(articles);
-  // };
+  const getNews = async () => {
+    setLoading(true);
+    const response = await fetch(
+      `https://newsapi.org/v2/top-headlines?sources=${sources}&apiKey=${API_KEY}`
+    );
 
-  // useEffect(() => {
-  //   getNews();
-  // }, []);
+    if (response.status !== "ok") {
+      setLoading(false);
+      setError("Error happend... :(");
+      return;
+    }
+
+    setLoading(false);
+    const data = await response.json();
+    setNews(data.articles);
+  };
+
+  useEffect(() => {
+    getNews();
+  }, []);
 
   return (
     <div>
-      <h2>{news[0].author}</h2>
+      <h2 stylw={{ textAlign: "center" }}>{news[0].author}</h2>
       <ul>
         {news.map((item, index) => {
           return (
-            <Link to={item.url}>
-              <Li key={index}>
+            <Link key={index} to={item.url}>
+              <Li>
                 <img src={item.urlToImage} alt={item.author} style={{ width: "200px" }} />
-                {/* <Span><b>source:</b> <span>{item.source.name}</span></Span>
-                <Span><b>author:</b> {item.author}</Span> */}
+
                 <div style={{ marginLeft: "30px" }}>
                   <P>
-                    <h2 style={{ color: "#295589", marginTop: "0px" }}>{item.title}</h2>
+                    <h2 style={{ color: "#2976bb", marginTop: "0px" }}>{item.title}</h2>
                   </P>
                   <P>{item.description}</P>
                 </div>
@@ -47,6 +55,7 @@ const OneSourceNews = () => {
           );
         })}
       </ul>
+      {loading && "Loading ..."}
     </div>
   );
 };
@@ -68,6 +77,7 @@ export default OneSourceNews;
 
 const P = styled.span`
   display: inline-block;
+  color: #141414;
 `;
 
 const Li = styled.li`
